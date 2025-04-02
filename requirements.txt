@@ -2,4 +2,3 @@ Flask
 flask-cors
 openai
 gunicorn
-os
