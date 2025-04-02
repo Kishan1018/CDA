@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
+import openai
 import os
 from uuid import uuid4
 import re
@@ -8,7 +8,7 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 def get_markdown_files(directory):
     md_files = []
