@@ -1,4 +1,4 @@
 Flask
 flask-cors
-openai
+openai=1.22.0
 gunicorn
