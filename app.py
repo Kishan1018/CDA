@@ -22,9 +22,9 @@ def get_markdown_files(directory):
     return md_files
 
 # Directories for file uploads
-directory_path_mobile = 'cdabackend0.2/data/all/'
-directory_path_desktop = 'cdabckend0.2/data/desktop/'
-directory_path_all_CHAMPS = 'cdabackend0.2/data/all/'
+directory_path_mobile = 'cdabackend0.2/data/all'
+directory_path_desktop = 'cdabckend0.2/data/desktop'
+directory_path_all_CHAMPS = 'cdabackend0.2/data/all'
 
 session_threads = {}
 session_histories = {}
