@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
 import os
 from uuid import uuid4
 import re
+from openai import OpenAI
 
 app = Flask(__name__)
 CORS(app)
 
+# Initialize the OpenAI client using your API key from the environment
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def get_markdown_files(directory):
@@ -20,7 +21,7 @@ def get_markdown_files(directory):
                 md_files.append(os.path.join(root, file))
     return md_files
 
-# Directories for file uploads (ensure these exist on your production host)
+# Directories for file uploads
 directory_path_mobile = '/app/data/mobile'
 directory_path_desktop = '/app/data/desktop'
 directory_path_all_CHAMPS = '/app/data/all'
@@ -38,27 +39,29 @@ def preload_vector_stores():
     global global_vector_store_mobile, global_vector_store_desktop, global_vector_store_all
 
     mobile_file_paths = get_markdown_files(directory_path_mobile)
-    global_vector_store_mobile = client.beta.vector_stores.create(name="CDA_Mobile")
+    global_vector_store_mobile = client.vector_stores.create(name="CDA_Mobile")
     mobile_file_streams = [open(path, "rb") for path in mobile_file_paths]
-    mobile_file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+    mobile_file_batch = client.vector_stores.file_batches.upload_and_poll(
         vector_store_id=global_vector_store_mobile.id, files=mobile_file_streams
     )
 
     desktop_file_paths = get_markdown_files(directory_path_desktop)
-    global_vector_store_desktop = client.beta.vector_stores.create(name="CDA_Desktop")
+    global_vector_store_desktop = client.vector_stores.create(name="CDA_Desktop")
     desktop_file_streams = [open(path, "rb") for path in desktop_file_paths]
-    desktop_file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+    desktop_file_batch = client.vector_stores.file_batches.upload_and_poll(
         vector_store_id=global_vector_store_desktop.id, files=desktop_file_streams
     )
 
     all_file_paths = get_markdown_files(directory_path_all_CHAMPS)
-    global_vector_store_all = client.beta.vector_stores.create(name="CDA_All")
+    global_vector_store_all = client.vector_stores.create(name="CDA_All")
     all_file_streams = [open(path, "rb") for path in all_file_paths]
-    all_file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+    all_file_batch = client.vector_stores.file_batches.upload_and_poll(
         vector_store_id=global_vector_store_all.id, files=all_file_streams
     )
 
-preload_vector_stores()
+# For testing on Vercel you might disable this preload (or control it via an environment variable)
+if os.environ.get("ENABLE_PRELOAD", "true").lower() == "true":
+    preload_vector_stores()
 
 def extract_assistant_message(msg):
     try:
@@ -168,3 +171,9 @@ def end_session():
         return jsonify({'status': 'session ended'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# Expose the Flask app as a WSGI callable for Vercel
+handler = app
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
