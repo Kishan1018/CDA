@@ -8,7 +8,7 @@ from openai import OpenAI
 app = Flask(__name__)
 CORS(app)
 
-# Initialize the OpenAI client using your API key from the environment
+# Initialize the OpenAI client using your API key from the environment.
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def get_markdown_files(directory):
@@ -21,39 +21,41 @@ def get_markdown_files(directory):
                 md_files.append(os.path.join(root, file))
     return md_files
 
-# Directories for file uploads
+# Directories for file uploads.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 directory_path_mobile = os.path.join(BASE_DIR, "data", "mobile")
 directory_path_desktop = os.path.join(BASE_DIR, "data", "desktop")
 
+# Session-specific globals.
 session_threads = {}
 session_histories = {}
 session_support = {}
 session_assistants = {}
 
+# Global vector stores (preloaded only once).
 global_vector_store_mobile = None
 global_vector_store_desktop = None
-global_vector_store_all = None
 
 def preload_vector_stores():
-    global global_vector_store_mobile, global_vector_store_desktop, global_vector_store_all
+    global global_vector_store_mobile, global_vector_store_desktop
 
+    # Preload Mobile documents.
     mobile_file_paths = get_markdown_files(directory_path_mobile)
     global_vector_store_mobile = client.vector_stores.create(name="CDA_Mobile")
     mobile_file_streams = [open(path, "rb") for path in mobile_file_paths]
-    mobile_file_batch = client.vector_stores.file_batches.upload_and_poll(
+    client.vector_stores.file_batches.upload_and_poll(
         vector_store_id=global_vector_store_mobile.id, files=mobile_file_streams
     )
 
+    # Preload Desktop documents.
     desktop_file_paths = get_markdown_files(directory_path_desktop)
     global_vector_store_desktop = client.vector_stores.create(name="CDA_Desktop")
     desktop_file_streams = [open(path, "rb") for path in desktop_file_paths]
-    desktop_file_batch = client.vector_stores.file_batches.upload_and_poll(
+    client.vector_stores.file_batches.upload_and_poll(
         vector_store_id=global_vector_store_desktop.id, files=desktop_file_streams
     )
 
-# For testing on Vercel you might disable this preload (or control it via an environment variable)
 if os.environ.get("ENABLE_PRELOAD", "true").lower() == "true":
     preload_vector_stores()
 
@@ -84,29 +86,31 @@ def chat():
     try:
         user_input = request.json.get('message')
         session_id = request.json.get('session_id')
-        support_choice = request.json.get('support_choice')
+        support_choice = request.json.get('support_choice')  # Expecting "mobile" or "desktop"
 
         if not session_id:
             session_id = str(uuid4())
 
+        # For new sessions, require a valid support_choice.
         if session_id not in session_threads:
             if support_choice not in ['mobile', 'desktop']:
-                support_choice = 'all'
+                return jsonify({
+                    'error': 'Support choice must be specified and be either "mobile" or "desktop".'
+                }), 400
+
             session_support[session_id] = support_choice
 
             if support_choice == 'mobile':
                 vector_store_id = global_vector_store_mobile.id
             elif support_choice == 'desktop':
                 vector_store_id = global_vector_store_desktop.id
-            else:
-                vector_store_id = global_vector_store_all.id
 
             session_assistant = client.beta.assistants.create(
                 name=f"CDA_{session_id}",
                 instructions=(
                     "You are a chatbot for CHAMPS Software. Answer questions clearly and neatly. "
-                    "Use **bold** for section headers. Never refer to training data or say you're AI. "
-                    "Act as if you're a helpful human support agent from the company. Ignore images in Markdown."
+                    "Use **bold** for section headers. Never refer to training data or state you are AI. "
+                    "Act as if you are a helpful human support agent from the company. Ignore images in Markdown."
                 ),
                 model="gpt-4o",
                 tools=[{"type": "file_search"}],
@@ -166,7 +170,7 @@ def end_session():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Expose the Flask app as a WSGI callable for Vercel
+# Expose the Flask app as a WSGI callable for Vercel.
 handler = app
 
 if __name__ == '__main__':
