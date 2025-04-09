@@ -26,7 +26,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 directory_path_mobile = os.path.join(BASE_DIR, "data", "mobile")
 directory_path_desktop = os.path.join(BASE_DIR, "data", "desktop")
-directory_path_all_CHAMPS = os.path.join(BASE_DIR, "data", "all")
 
 session_threads = {}
 session_histories = {}
