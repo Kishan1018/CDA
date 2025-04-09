@@ -53,13 +53,6 @@ def preload_vector_stores():
         vector_store_id=global_vector_store_desktop.id, files=desktop_file_streams
     )
 
-    all_file_paths = get_markdown_files(directory_path_all_CHAMPS)
-    global_vector_store_all = client.vector_stores.create(name="CDA_All")
-    all_file_streams = [open(path, "rb") for path in all_file_paths]
-    all_file_batch = client.vector_stores.file_batches.upload_and_poll(
-        vector_store_id=global_vector_store_all.id, files=all_file_streams
-    )
-
 # For testing on Vercel you might disable this preload (or control it via an environment variable)
 if os.environ.get("ENABLE_PRELOAD", "true").lower() == "true":
     preload_vector_stores()
