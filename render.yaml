@@ -4,6 +4,3 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
-    envVars:
-      - key: OPENAI_API_KEY
-        value: "REPLACE_WITH_YOUR_OPENAI_API_KEY"
