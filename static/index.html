@@ -1,3 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHAMPS Digital Assistant</title>
+  <style>
+    :root {
+      --bg-color: #343541;
+      --text-color: #dcdcdc;
+      --header-bg: #444654;
+      --message-bg-user: #0f8cff;
+      --message-bg-response: #3e3f4b;
+      --input-bg: #40414f;
+      --button-bg: #0f8cff;
+      --border-color: #565869;
+      --toggle-bg: var(--border-color);
+    }
+
+    .light-mode {
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --header-bg: #ffffff;
+      --message-bg-user: #4a90e2;
+      --message-bg-response: #f1f1f1;
+      --input-bg: #ffffff;
+      --button-bg: #4a90e2;
+      --border-color: #ddd;
+      --toggle-bg: var(--border-color);
+    }
+
+    body.dark-mode .toggle {
+      background: var(--message-bg-user);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Add top padding to body so content is not hidden behind the fixed header */
+    body {
+      background-image: 
+        url('Background-Gradient.png'),
+        url('CDA-Background.jpg');
+      background-size: cover, cover;
+      background-repeat: no-repeat, no-repeat;
+      background-position: center center, center center;
+      background-attachment: fixed, fixed;
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      padding-top: 70px; /* Adjust according to header height */
+    }
+
+    /* Assistant Box Wrapper */
+    .assistant-box {
+      width: 95%;
+      max-width: 1400px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.2),
+        0 0 8px rgba(0, 162, 255, 0.2),
+        0 0 15px rgba(0, 162, 255, 0.1);
+      transition: box-shadow 0.3s ease;
+    }
+
+    /* External Header with only CHAMPS Logo centered */
+    .main-header {
+      position: fixed;
+      top: 35px;
+      left: 0;
+      width: 100%;
+      background-color: transparent;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 24px;
+      border-bottom: none;
+    }
+
+    .main-header img {
+      height: 55px;
+      cursor: pointer;
+    }
+
+    /* Existing Internal Header for Chat */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+    }
+
+    .beta-tag {
+      font-size: inherit;
+      font-weight: inherit;
+      background: linear-gradient(90deg, #6ec1ff 0%, #78caff 50%, #82d2ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-left: 8px;
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: var(--toggle-bg);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .toggle:before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    body.light-mode .toggle:before {
+      transform: translateX(26px);
+    }
+
+    /* Chat Container */
+    .chat-container {
+      background: var(--header-bg);
+      display: flex;
+      flex-direction: column;
+      height: 70vh;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Messages Section */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 5px;
+    }
+
+    /* Shared Message Style */
+    .message {
+      box-sizing: border-box;
+      padding: 10px 15px;
+      border-radius: 25px;
+      max-width: 75%;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slide-in 0.4s forwards;
+    }
+
+    @keyframes slide-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--message-bg-user);
+      color: white;
+    }
+
+    .response-message {
+      align-self: flex-start;
+      background: var(--message-bg-response);
+      transition: all 0.5s ease;
+    }
+
+    .message p {
+      margin: 0.2em 0;
+      line-height: 1.3;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .typing-indicator span {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background-color: #1f96f2;
+      border-radius: 50%;
+      animation: blink 1.4s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Input Section */
+    .input-section {
+      background: var(--input-bg);
+      border-top: 1px solid var(--border-color);
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    #textInputContainer {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-section textarea {
+      flex: 1;
+      padding: 10px 15px;
+      font-size: 1rem;
+      line-height: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      outline: none;
+      resize: none;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      transition: height 0.3s ease;
+      max-height: 200px;
+      overflow-y: hidden;
+      box-shadow: 0 0 4px rgba(255,255,255,0.5);
+    }
+
+    .input-section textarea::placeholder {
+      color: #a1a1aa;
+    }
+
+    .input-section button {
+      background: var(--button-bg);
+      color: white;
+      font-size: 1rem;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .input-section button:hover {
+      background: #0073e6;
+    }
+
+    /* Choice Buttons */
+    .choice-input-button {
+      width: 48%;
+      height: 40px;
+      font-size: 1rem;
+      background: var(--bg-color) !important;
+      color: var(--text-color) !important;
+      border: 2px solid var(--button-bg) !important;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(15,140,255,0.8) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .choice-input-button:hover {
+      transform: scale(0.98);
+    }
+
+    .choice-input-button:active {
+      transform: scale(0.95);
+    }
+
+    #choiceBubble.disabled {
+      opacity: 0.5;
+      filter: grayscale(100%);
+      pointer-events: none;
+      transition: opacity 0.5s ease, filter 0.5s ease;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 15px;
+      color: var(--text-color);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <!-- External Header with only the CHAMPS Logo -->
+  <div class="main-header">
+    <a href="https://champsinc.com">
+      <img src="CHAMPS-logo.png" alt="CHAMPS Logo">
+    </a>
+  </div>
+
+  <div class="assistant-box">
+    <!-- Internal Chat Header -->
+    <header>
+      <h1>CHAMPS Digital Assistant <span class="beta-tag">beta</span></h1>
+      <div class="toggle-container">
+        <span class="toggle-label">Dark</span>
+        <div class="toggle" onclick="toggleTheme()"></div>
+        <span class="toggle-label">Light</span>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div class="messages" id="messages"></div>
+      <div class="input-section" id="inputSection">
+        <!-- Original input container -->
+        <div id="textInputContainer">
+          <textarea id="userInput" placeholder="Type a message..." rows="1"
+            onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendMessage(); }"></textarea>
+          <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Powered by CHAMPS Software</footer>
+
   <script>
     let sessionId = crypto.randomUUID();
     window.supportChoice = undefined;
@@ -166,3 +560,5 @@
       navigator.sendBeacon('/end_session', JSON.stringify({ session_id: sessionId }));
     });
   </script>
+</body>
+</html>
