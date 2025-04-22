@@ -1,12 +1,24 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 from uuid import uuid4
 import re
 from openai import OpenAI
 
-app = Flask(__name__)
+# Serve static files at "/" (so your index.html is at "/")
+app = Flask(
+    __name__,
+    static_folder="static",
+    static_url_path=""
+)
 CORS(app)
+
+# Route to serve index.html
+@app.route("/")
+def home():
+    return send_from_directory(app.static_folder, "index.html")
+
+# --- rest of your existing API code unchanged below ---
 
 # Initialize the OpenAI client using your API key from the environment.
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -23,7 +35,6 @@ def get_markdown_files(directory):
 
 # Directories for file uploads.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 directory_path_mobile = os.path.join(BASE_DIR, "data", "mobile")
 directory_path_desktop = os.path.join(BASE_DIR, "data", "desktop")
 
@@ -168,7 +179,7 @@ def end_session():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Expose the Flask app as a WSGI callable for Vercel.
+# Expose the Flask app as a WSGI callable.
 handler = app
 
 if __name__ == '__main__':
