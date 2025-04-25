@@ -59,13 +59,14 @@
       padding-top: 70px;
     }
 
+    /* Logo header now sits behind */
     .main-header {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       background-color: transparent;
-      z-index: 1000;
+      z-index: 0; /* lowered so chat sits on top */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -80,7 +81,10 @@
       cursor: pointer;
     }
 
+    /* Bring the chat container above the logo */
     .assistant-box {
+      position: relative;
+      z-index: 1;
       width: 95%;
       max-width: 1400px;
       border-radius: 8px;
@@ -231,27 +235,9 @@
       animation: blink 1.4s infinite ease-in-out;
     }
 
-    .typing-indicator span:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .typing-indicator span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing-indicator span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-
     @keyframes blink {
-      0%, 80%, 100% {
-        opacity: 0.4;
-        transform: scale(1);
-      }
-      40% {
-        opacity: 1;
-        transform: scale(1.2);
-      }
+      0%, 80%, 100% { opacity: 0.4; transform: scale(1); }
+      40% { opacity: 1; transform: scale(1.2); }
     }
 
     .input-section {
@@ -281,9 +267,6 @@
       color: var(--text-color);
       outline: none;
       resize: none;
-      white-space: pre-wrap;
-      overflow-wrap: break-word;
-      transition: height 0.3s ease;
       max-height: 200px;
       overflow-y: hidden;
       box-shadow: 0 0 4px rgba(255,255,255,0.5);
@@ -333,21 +316,15 @@
       background: var(--message-bg-user) !important;
     }
 
-    .choice-input-button:active {
-      transform: scale(0.95);
-    }
-
     footer {
       margin-top: 15px;
       color: var(--text-color);
       font-size: 0.85rem;
     }
 
-    /* MOBILE LAYOUT */
+    /* Responsive tweaks */
     @media (max-width: 768px) {
-      .main-header img {
-        height: 40px;
-      }
+      .main-header img { height: 40px; }
       header {
         flex-direction: column;
         align-items: center;
@@ -358,9 +335,7 @@
         white-space: normal;
         text-align: center;
       }
-      .toggle-container {
-        justify-content: center;
-      }
+      .toggle-container { justify-content: center; }
       .chat-container {
         height: auto;
         max-height: 80vh;
