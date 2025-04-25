@@ -40,7 +40,6 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* Add top padding to body so content is not hidden behind the fixed header */
     body {
       background-image: 
         url('Background-Gradient.png'),
@@ -57,10 +56,9 @@
       min-height: 100vh;
       margin: 0;
       transition: background-color 0.3s ease, color 0.3s ease;
-      padding-top: 70px; /* Adjust according to header height */
+      padding-top: 70px;
     }
 
-    /* Assistant Box Wrapper */
     .assistant-box {
       width: 95%;
       max-width: 1400px;
@@ -73,7 +71,6 @@
       transition: box-shadow 0.3s ease;
     }
 
-    /* External Header with only CHAMPS Logo centered */
     .main-header {
       position: fixed;
       top: 35px;
@@ -93,7 +90,6 @@
       cursor: pointer;
     }
 
-    /* Existing Internal Header for Chat */
     header {
       display: flex;
       justify-content: space-between;
@@ -120,7 +116,6 @@
       margin-left: 8px;
     }
 
-    /* Toggle Switch */
     .toggle-container {
       display: flex;
       align-items: center;
@@ -158,7 +153,6 @@
       transform: translateX(26px);
     }
 
-    /* Chat Container */
     .chat-container {
       background: var(--header-bg);
       display: flex;
@@ -167,7 +161,6 @@
       transition: background-color 0.3s ease;
     }
 
-    /* Messages Section */
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -186,7 +179,6 @@
       border-radius: 5px;
     }
 
-    /* Shared Message Style */
     .message {
       box-sizing: border-box;
       padding: 10px 15px;
@@ -221,12 +213,6 @@
       transition: all 0.5s ease;
     }
 
-    .message p {
-      margin: 0.2em 0;
-      line-height: 1.3;
-    }
-
-    /* Typing Indicator */
     .typing-indicator {
       display: flex;
       justify-content: center;
@@ -266,7 +252,6 @@
       }
     }
 
-    /* Input Section */
     .input-section {
       background: var(--input-bg);
       border-top: 1px solid var(--border-color);
@@ -306,7 +291,6 @@
       color: #a1a1aa;
     }
 
-    /* Send button: default state */
     .input-section button {
       background: var(--button-bg);
       color: white;
@@ -319,19 +303,16 @@
       transition: background 0.3s ease, opacity 0.3s ease;
     }
 
-    /* Send button: hover (only when enabled) */
     .input-section button:hover:not(:disabled) {
       background: #0073e6;
     }
 
-    /* Send button: disabled state */
     .input-section button:disabled {
       background: var(--border-color);
       cursor: not-allowed;
       opacity: 0.5;
     }
 
-    /* Choice Buttons */
     .choice-input-button {
       width: 48%;
       height: 40px;
@@ -360,7 +341,6 @@
       transition: opacity 0.5s ease, filter 0.5s ease;
     }
 
-    /* Footer */
     footer {
       margin-top: 15px;
       color: var(--text-color);
@@ -369,7 +349,6 @@
   </style>
 </head>
 <body class="dark-mode">
-  <!-- External Header with only the CHAMPS Logo -->
   <div class="main-header">
     <a href="https://champsinc.com">
       <img src="CHAMPS-logo.png" alt="CHAMPS Logo">
@@ -377,7 +356,6 @@
   </div>
 
   <div class="assistant-box">
-    <!-- Internal Chat Header -->
     <header>
       <h1>CHAMPS Digital Assistant <span class="beta-tag">beta</span></h1>
       <div class="toggle-container">
@@ -390,7 +368,6 @@
     <div class="chat-container">
       <div class="messages" id="messages"></div>
       <div class="input-section" id="inputSection">
-        <!-- Original input container -->
         <div id="textInputContainer">
           <textarea id="userInput" placeholder="Type a message..." rows="1"
             onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendMessage(); }"></textarea>
@@ -407,42 +384,46 @@
     window.supportChoice = undefined;
     window.choiceMode = true;
     const originalInputHTML = document.getElementById('textInputContainer').innerHTML;
-
-    // Grab elements
-    const userInput = document.getElementById('userInput');
-    const sendButton = document.getElementById('sendButton');
-
-    // Track in-flight requests
     let isLoading = false;
+    let initialHeight;
 
-    let initialHeight = userInput.scrollHeight;
-    userInput.style.height = initialHeight + "px";
-
-    userInput.addEventListener('input', function() {
-      this.style.height = "auto";
-      this.style.height = this.scrollHeight + "px";
+    // set up the auto-resize on the very first textarea
+    document.addEventListener('DOMContentLoaded', () => {
+      const ta = document.getElementById('userInput');
+      initialHeight = ta.scrollHeight;
+      ta.style.height = initialHeight + "px";
+      ta.addEventListener('input', () => {
+        ta.style.height = "auto";
+        ta.style.height = ta.scrollHeight + "px";
+      });
+      initializeChat();
     });
 
     async function sendMessage() {
+      // always grab the *current* elements
+      const textArea = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendButton');
+
       if (isLoading) return;
-      const textArea = userInput;
       const userMessage = textArea.value.trim();
       if (!userMessage) return;
 
-      // disable further sends
       isLoading = true;
-      sendButton.disabled = true;
+      sendBtn.disabled = true;
 
       const messagesDiv = document.getElementById('messages');
+      // show the user's bubble
       const userMsgDiv = document.createElement('div');
       userMsgDiv.className = 'message user-message';
       userMsgDiv.innerText = userMessage;
       messagesDiv.appendChild(userMsgDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+      // clear & reset height
       textArea.value = "";
       textArea.style.height = initialHeight + "px";
 
+      // show typing indicator
       const spinnerBubble = document.createElement('div');
       spinnerBubble.className = 'message response-message';
       const spinnerContainer = document.createElement('div');
@@ -472,13 +453,10 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
       } catch (error) {
         console.error('Error communicating with the backend:', error);
-        if (spinnerBubble.parentNode) {
-          messagesDiv.removeChild(spinnerBubble);
-        }
+        if (spinnerBubble.parentNode) messagesDiv.removeChild(spinnerBubble);
       } finally {
-        // re-enable sending
         isLoading = false;
-        sendButton.disabled = false;
+        sendBtn.disabled = false;
       }
     }
 
@@ -505,33 +483,32 @@
       desktopButton.classList.add('choice-input-button');
       desktopButton.innerText = 'CHAMPS CMMS';
 
-      mobileButton.addEventListener('click', function() {
-        handleProductChoice('mobile');
-      });
-      desktopButton.addEventListener('click', function() {
-        handleProductChoice('desktop');
-      });
+      mobileButton.addEventListener('click', () => handleProductChoice('mobile'));
+      desktopButton.addEventListener('click', () => handleProductChoice('desktop'));
 
-      choiceContainer.appendChild(mobileButton);
-      choiceContainer.appendChild(desktopButton);
+      choiceContainer.append(mobileButton, desktopButton);
       inputSection.appendChild(choiceContainer);
     }
 
     function handleProductChoice(product) {
       window.supportChoice = product;
       window.choiceMode = false;
+
+      const messagesDiv = document.getElementById('messages');
+      // remove the prompt
       const promptBubble = document.getElementById('promptBubble');
       if (promptBubble) promptBubble.remove();
-      const messageText = product === 'mobile'
+
+      // show the follow-up message
+      const botMsg = document.createElement('div');
+      botMsg.className = 'message response-message';
+      botMsg.innerText = product === 'mobile'
         ? "How can I help you with CHAMPS Mobile App?"
         : "How can I help you with CHAMPS CMMS?";
-      const messagesDiv = document.getElementById('messages');
-      const botMsgBubble = document.createElement('div');
-      botMsgBubble.className = 'message response-message';
-      botMsgBubble.innerText = messageText;
-      messagesDiv.appendChild(botMsgBubble);
+      messagesDiv.appendChild(botMsg);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+      // fade out choices, then restore the text input
       const inputSection = document.getElementById('inputSection');
       const choiceContainer = inputSection.querySelector('.choice-mode');
       if (choiceContainer) {
@@ -539,28 +516,19 @@
         choiceContainer.style.opacity = '0';
         setTimeout(() => {
           inputSection.innerHTML = originalInputHTML;
-          const newInputContainer = document.getElementById('textInputContainer');
-          newInputContainer.style.opacity = 0;
-          setTimeout(() => {
-            newInputContainer.style.transition = 'opacity 0.5s ease';
-            newInputContainer.style.opacity = '1';
-          }, 10);
-          const restoredUserInput = document.getElementById('userInput');
-          initialHeight = restoredUserInput.scrollHeight;
-          restoredUserInput.style.height = initialHeight + "px";
-          restoredUserInput.addEventListener('input', function() {
-            this.style.height = "auto";
-            this.style.height = this.scrollHeight + "px";
+          const newTA = document.getElementById('userInput');
+          initialHeight = newTA.scrollHeight;
+          newTA.style.height = initialHeight + "px";
+          newTA.addEventListener('input', () => {
+            newTA.style.height = "auto";
+            newTA.style.height = newTA.scrollHeight + "px";
           });
         }, 500);
-      } else {
-        inputSection.innerHTML = originalInputHTML;
       }
     }
 
     function initializeChat() {
       const messagesDiv = document.getElementById('messages');
-
       const welcomeBubble = document.createElement('div');
       welcomeBubble.className = 'message response-message';
       welcomeBubble.innerText = 'Welcome to CHAMPS Software!';
@@ -576,11 +544,7 @@
       initializeChoiceMode();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeChat();
-    });
-
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', () => {
       navigator.sendBeacon('/end_session', JSON.stringify({ session_id: sessionId }));
     });
   </script>
