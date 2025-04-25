@@ -321,6 +321,14 @@
       background: #0073e6;
     }
 
+    /* Disabled send button state */
+    .input-section button:disabled {
+      background: var(--border-color);
+      cursor: not-allowed;
+      opacity: 0.5;
+      transition: background 0.3s ease, opacity 0.3s ease;
+    }
+
     /* Choice Buttons */
     .choice-input-button {
       width: 48%;
@@ -397,54 +405,64 @@
     window.supportChoice = undefined;
     window.choiceMode = true;
     const originalInputHTML = document.getElementById('textInputContainer').innerHTML;
-    
+
+    // Grab send button and textarea elements
     const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+
+    // Track when a request is in flight
+    let isLoading = false;
+
     let initialHeight = userInput.scrollHeight;
     userInput.style.height = initialHeight + "px";
-    
+
     userInput.addEventListener('input', function() {
       this.style.height = "auto";
       this.style.height = this.scrollHeight + "px";
     });
-    
+
     async function sendMessage() {
+      if (isLoading) return;              // ignore if still waiting
       const textArea = document.getElementById('userInput');
       const userMessage = textArea.value.trim();
       if (!userMessage) return;
-      
+
+      // disable further sends
+      isLoading = true;
+      sendButton.disabled = true;
+
       const messagesDiv = document.getElementById('messages');
       const userMsgDiv = document.createElement('div');
       userMsgDiv.className = 'message user-message';
       userMsgDiv.innerText = userMessage;
       messagesDiv.appendChild(userMsgDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      
+
       textArea.value = "";
       textArea.style.height = initialHeight + "px";
-      
+
       const spinnerBubble = document.createElement('div');
       spinnerBubble.className = 'message response-message';
       const spinnerContainer = document.createElement('div');
-      spinnerContainer.className = 'spinner-container';
-      spinnerContainer.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+      spinnerContainer.className = 'typing-indicator';
+      spinnerContainer.innerHTML = '<span></span><span></span><span></span>';
       spinnerBubble.appendChild(spinnerContainer);
       messagesDiv.appendChild(spinnerBubble);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      
+
       try {
         const payload = { message: userMessage, session_id: sessionId };
-        if (window.supportChoice) {
-          payload.support_choice = window.supportChoice;
-        }
+        if (window.supportChoice) payload.support_choice = window.supportChoice;
+
         const response = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const data = await response.json();
-        
+
         messagesDiv.removeChild(spinnerBubble);
-        
+
         const responseBubble = document.createElement('div');
         responseBubble.className = 'message response-message';
         responseBubble.innerHTML = data.reply;
@@ -455,14 +473,18 @@
         if (spinnerBubble.parentNode) {
           messagesDiv.removeChild(spinnerBubble);
         }
+      } finally {
+        // re-enable sending
+        isLoading = false;
+        sendButton.disabled = false;
       }
     }
-    
+
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
       document.body.classList.toggle('dark-mode');
     }
-    
+
     function initializeChoiceMode() {
       const inputSection = document.getElementById('inputSection');
       inputSection.innerHTML = '';
@@ -472,27 +494,27 @@
       choiceContainer.style.justifyContent = 'center';
       choiceContainer.style.width = '100%';
       choiceContainer.style.gap = '2%';
-      
+
       const mobileButton = document.createElement('button');
       mobileButton.classList.add('choice-input-button');
       mobileButton.innerText = 'CHAMPS Mobile App';
-      
+
       const desktopButton = document.createElement('button');
       desktopButton.classList.add('choice-input-button');
       desktopButton.innerText = 'CHAMPS CMMS';
-      
+
       mobileButton.addEventListener('click', function() {
         handleProductChoice('mobile');
       });
       desktopButton.addEventListener('click', function() {
         handleProductChoice('desktop');
       });
-      
+
       choiceContainer.appendChild(mobileButton);
       choiceContainer.appendChild(desktopButton);
       inputSection.appendChild(choiceContainer);
     }
-    
+
     function handleProductChoice(product) {
       window.supportChoice = product;
       window.choiceMode = false;
@@ -507,7 +529,7 @@
       botMsgBubble.innerText = messageText;
       messagesDiv.appendChild(botMsgBubble);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      
+
       const inputSection = document.getElementById('inputSection');
       const choiceContainer = inputSection.querySelector('.choice-mode');
       if (choiceContainer) {
@@ -533,29 +555,29 @@
         inputSection.innerHTML = originalInputHTML;
       }
     }
-    
+
     function initializeChat() {
       const messagesDiv = document.getElementById('messages');
-      
+
       const welcomeBubble = document.createElement('div');
       welcomeBubble.className = 'message response-message';
       welcomeBubble.innerText = 'Welcome to CHAMPS Software!';
       messagesDiv.appendChild(welcomeBubble);
-      
+
       const promptBubble = document.createElement('div');
       promptBubble.className = 'message response-message';
       promptBubble.id = "promptBubble";
       promptBubble.innerText = 'Please choose a product below.';
       messagesDiv.appendChild(promptBubble);
-      
+
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
       initializeChoiceMode();
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
       initializeChat();
     });
-    
+
     window.addEventListener('beforeunload', function() {
       navigator.sendBeacon('/end_session', JSON.stringify({ session_id: sessionId }));
     });
