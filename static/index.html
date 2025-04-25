@@ -306,6 +306,7 @@
       color: #a1a1aa;
     }
 
+    /* Send button: default state */
     .input-section button {
       background: var(--button-bg);
       color: white;
@@ -314,19 +315,20 @@
       padding: 10px 20px;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      opacity: 1;
+      transition: background 0.3s ease, opacity 0.3s ease;
     }
 
-    .input-section button:hover {
+    /* Send button: hover (only when enabled) */
+    .input-section button:hover:not(:disabled) {
       background: #0073e6;
     }
 
-    /* Disabled send button state */
+    /* Send button: disabled state */
     .input-section button:disabled {
       background: var(--border-color);
       cursor: not-allowed;
       opacity: 0.5;
-      transition: background 0.3s ease, opacity 0.3s ease;
     }
 
     /* Choice Buttons */
@@ -406,11 +408,11 @@
     window.choiceMode = true;
     const originalInputHTML = document.getElementById('textInputContainer').innerHTML;
 
-    // Grab send button and textarea elements
+    // Grab elements
     const userInput = document.getElementById('userInput');
     const sendButton = document.getElementById('sendButton');
 
-    // Track when a request is in flight
+    // Track in-flight requests
     let isLoading = false;
 
     let initialHeight = userInput.scrollHeight;
@@ -422,8 +424,8 @@
     });
 
     async function sendMessage() {
-      if (isLoading) return;              // ignore if still waiting
-      const textArea = document.getElementById('userInput');
+      if (isLoading) return;
+      const textArea = userInput;
       const userMessage = textArea.value.trim();
       if (!userMessage) return;
 
