@@ -323,22 +323,16 @@
       border-radius: 8px;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(15,140,255,0.8) !important;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     }
 
     .choice-input-button:hover {
       transform: scale(0.98);
+      background: var(--message-bg-user) !important;
     }
 
     .choice-input-button:active {
       transform: scale(0.95);
-    }
-
-    #choiceBubble.disabled {
-      opacity: 0.5;
-      filter: grayscale(100%);
-      pointer-events: none;
-      transition: opacity 0.5s ease, filter 0.5s ease;
     }
 
     footer {
@@ -387,7 +381,6 @@
     let isLoading = false;
     let initialHeight;
 
-    // set up the auto-resize on the very first textarea
     document.addEventListener('DOMContentLoaded', () => {
       const ta = document.getElementById('userInput');
       initialHeight = ta.scrollHeight;
@@ -400,7 +393,6 @@
     });
 
     async function sendMessage() {
-      // always grab the *current* elements
       const textArea = document.getElementById('userInput');
       const sendBtn = document.getElementById('sendButton');
 
@@ -412,18 +404,15 @@
       sendBtn.disabled = true;
 
       const messagesDiv = document.getElementById('messages');
-      // show the user's bubble
       const userMsgDiv = document.createElement('div');
       userMsgDiv.className = 'message user-message';
       userMsgDiv.innerText = userMessage;
       messagesDiv.appendChild(userMsgDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-      // clear & reset height
       textArea.value = "";
       textArea.style.height = initialHeight + "px";
 
-      // show typing indicator
       const spinnerBubble = document.createElement('div');
       spinnerBubble.className = 'message response-message';
       const spinnerContainer = document.createElement('div');
@@ -495,11 +484,9 @@
       window.choiceMode = false;
 
       const messagesDiv = document.getElementById('messages');
-      // remove the prompt
       const promptBubble = document.getElementById('promptBubble');
       if (promptBubble) promptBubble.remove();
 
-      // show the follow-up message
       const botMsg = document.createElement('div');
       botMsg.className = 'message response-message';
       botMsg.innerText = product === 'mobile'
@@ -508,7 +495,6 @@
       messagesDiv.appendChild(botMsg);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-      // fade out choices, then restore the text input
       const inputSection = document.getElementById('inputSection');
       const choiceContainer = inputSection.querySelector('.choice-mode');
       if (choiceContainer) {
