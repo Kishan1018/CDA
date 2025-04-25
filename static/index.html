@@ -41,7 +41,7 @@
     }
 
     body {
-      background-image: 
+      background-image:
         url('Background-Gradient.png'),
         url('CDA-Background.jpg');
       background-size: cover, cover;
@@ -342,6 +342,45 @@
       color: var(--text-color);
       font-size: 0.85rem;
     }
+
+    /* MOBILE LAYOUT */
+    @media (max-width: 768px) {
+      .main-header img {
+        height: 40px;
+      }
+      header {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      header h1 {
+        font-size: 1.25rem;
+        white-space: normal;
+        text-align: center;
+      }
+      .toggle-container {
+        justify-content: center;
+      }
+      .chat-container {
+        height: auto;
+        max-height: 80vh;
+      }
+      .choice-mode {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+      .choice-input-button {
+        width: 100% !important;
+        margin-bottom: 10px;
+      }
+      .input-section {
+        flex-direction: column;
+      }
+      .input-section button {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
   </style>
 </head>
 <body class="dark-mode">
@@ -383,13 +422,11 @@
     let isLoading = false;
     let initialHeight;
 
-    // POSITION HEADER HALFWAY + SMALL OFFSET
     function positionHeader() {
       const header = document.querySelector('.main-header');
       const assistantBox = document.querySelector('.assistant-box');
       if (!header || !assistantBox) return;
       const assistantTop = assistantBox.getBoundingClientRect().top;
-      // center at half the gap, then add 10px downward
       header.style.top = (assistantTop / 2 + 7.5) + 'px';
     }
 
@@ -410,7 +447,6 @@
     async function sendMessage() {
       const textArea = document.getElementById('userInput');
       const sendBtn = document.getElementById('sendButton');
-
       if (isLoading) return;
       const userMessage = textArea.value.trim();
       if (!userMessage) return;
@@ -526,7 +562,6 @@
           });
         }, 500);
       }
-
       positionHeader();
     }
 
