@@ -59,6 +59,27 @@
       padding-top: 70px;
     }
 
+    .main-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: transparent;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 24px;
+      border-bottom: none;
+      transform: translateY(-50%);
+      transition: top 0.3s ease;
+    }
+
+    .main-header img {
+      height: 55px;
+      cursor: pointer;
+    }
+
     .assistant-box {
       width: 95%;
       max-width: 1400px;
@@ -69,25 +90,6 @@
         0 0 8px rgba(0, 162, 255, 0.2),
         0 0 15px rgba(0, 162, 255, 0.1);
       transition: box-shadow 0.3s ease;
-    }
-
-    .main-header {
-      position: fixed;
-      top: 35px;
-      left: 0;
-      width: 100%;
-      background-color: transparent;
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 12px 24px;
-      border-bottom: none;
-    }
-
-    .main-header img {
-      height: 55px;
-      cursor: pointer;
     }
 
     header {
@@ -381,6 +383,16 @@
     let isLoading = false;
     let initialHeight;
 
+    // POSITION HEADER HALFWAY + SMALL OFFSET
+    function positionHeader() {
+      const header = document.querySelector('.main-header');
+      const assistantBox = document.querySelector('.assistant-box');
+      if (!header || !assistantBox) return;
+      const assistantTop = assistantBox.getBoundingClientRect().top;
+      // center at half the gap, then add 10px downward
+      header.style.top = (assistantTop / 2 + 7.5) + 'px';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const ta = document.getElementById('userInput');
       initialHeight = ta.scrollHeight;
@@ -390,7 +402,10 @@
         ta.style.height = ta.scrollHeight + "px";
       });
       initializeChat();
+      positionHeader();
     });
+
+    window.addEventListener('resize', positionHeader);
 
     async function sendMessage() {
       const textArea = document.getElementById('userInput');
@@ -511,6 +526,8 @@
           });
         }, 500);
       }
+
+      positionHeader();
     }
 
     function initializeChat() {
