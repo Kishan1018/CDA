@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CHAMPS Digital Assistant</title>
-  <!--Favicon-->
-  <link rel = "icon" href = "CHAMPS-tab-icon.png" type = "image/png" /> 
+  <!-- Favicon -->
+  <link rel="icon" href="CHAMPS-tab-icon.png" type="image/png" />
   <style>
     :root {
       --bg-color: #343541;
@@ -31,10 +31,6 @@
       --toggle-bg: var(--border-color);
     }
 
-    body.dark-mode .toggle {
-      background: var(--message-bg-user);
-    }
-
     * {
       margin: 0;
       padding: 0;
@@ -43,9 +39,7 @@
     }
 
     body {
-      background-image:
-        url('Background-Gradient.png'),
-        url('CDA-Background.jpg');
+      background-image: url('Background-Gradient.png'), url('CDA-Background.jpg');
       background-size: cover, cover;
       background-repeat: no-repeat, no-repeat;
       background-position: center center, center center;
@@ -56,34 +50,83 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
-      transition: background-color 0.3s ease, color 0.3s ease;
       padding-top: 70px;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Logo header now sits behind */
+    /* --- Beta Popup Styles --- */
+    #beta-popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: background-color 0.4s ease;
+    }
+    #beta-popup {
+      position: relative;
+      background-color: var(--header-bg);
+      color: var(--text-color);
+      padding: 30px;
+      border-radius: 10px;
+      width: 450px;
+      max-width: 90%;
+      border: 2px solid var(--button-bg);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      text-align: center;
+      transition: transform 0.6s ease, opacity 0.4s ease;
+      transform: scale(1) translate(0,0);
+      opacity: 1;
+      z-index: 10001;
+    }
+    #beta-popup-close {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--text-color);
+      cursor: pointer;
+    }
+    #beta-popup h2 {
+      margin-bottom: 1em;
+      font-size: 1.5rem;
+      /* match beta-tag gradient */
+      background: linear-gradient(90deg, #6ec1ff 0%, #78caff 50%, #82d2ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    #beta-popup p {
+      line-height: 1.4;
+    }
+    @media (max-width: 768px) {
+      #beta-popup {
+        width: 95%;
+        padding: 20px;
+      }
+    }
+    /* ----------------------------- */
+
     .main-header {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
+      top: 0; left: 0; width: 100%;
       background-color: transparent;
-      z-index: 0; /* lowered so chat sits on top */
+      z-index: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 12px 24px;
-      border-bottom: none;
       transform: translateY(-50%);
       transition: top 0.3s ease;
     }
-
     .main-header img {
       height: 55px;
       cursor: pointer;
     }
 
-    /* Bring the chat container above the logo */
     .assistant-box {
       position: relative;
       z-index: 1;
@@ -92,9 +135,9 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow:
-        0 4px 8px rgba(0, 0, 0, 0.2),
-        0 0 8px rgba(0, 162, 255, 0.2),
-        0 0 15px rgba(0, 162, 255, 0.1);
+        0 4px 8px rgba(0,0,0,0.2),
+        0 0 8px rgba(0,162,255,0.2),
+        0 0 15px rgba(0,162,255,0.1);
       transition: box-shadow 0.3s ease;
     }
 
@@ -103,25 +146,23 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px;
-      background: var(--header-bg);
+      background-color: var(--header-bg);
       border-bottom: 1px solid var(--border-color);
     }
 
     header h1 {
       font-size: 1.5rem;
       font-weight: 600;
-      white-space: nowrap;
       display: flex;
       align-items: center;
+      white-space: nowrap;
     }
 
     .beta-tag {
-      font-size: inherit;
-      font-weight: inherit;
+      margin-left: 8px;
       background: linear-gradient(90deg, #6ec1ff 0%, #78caff 50%, #82d2ff 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-left: 8px;
     }
 
     .toggle-container {
@@ -137,32 +178,29 @@
 
     .toggle {
       position: relative;
-      width: 50px;
-      height: 24px;
-      background: var(--toggle-bg);
+      width: 50px; height: 24px;
+      background-color: var(--toggle-bg);
       border-radius: 15px;
       cursor: pointer;
       transition: background 0.3s ease;
     }
 
-    .toggle:before {
+    .toggle::before {
       content: '';
       position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      background: white;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background-color: white;
       border-radius: 50%;
       transition: transform 0.3s ease;
     }
 
-    body.light-mode .toggle:before {
+    body.light-mode .toggle::before {
       transform: translateX(26px);
     }
 
     .chat-container {
-      background: var(--header-bg);
+      background-color: var(--header-bg);
       display: flex;
       flex-direction: column;
       height: 70vh;
@@ -181,14 +219,12 @@
     .messages::-webkit-scrollbar {
       width: 6px;
     }
-
     .messages::-webkit-scrollbar-thumb {
-      background: var(--border-color);
+      background-color: var(--border-color);
       border-radius: 5px;
     }
 
     .message {
-      box-sizing: border-box;
       padding: 10px 15px;
       border-radius: 25px;
       max-width: 75%;
@@ -201,23 +237,19 @@
       transform: translateY(20px);
       animation: slide-in 0.4s forwards;
     }
-
     @keyframes slide-in {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .user-message {
       align-self: flex-end;
-      background: var(--message-bg-user);
+      background-color: var(--message-bg-user);
       color: white;
     }
 
     .response-message {
       align-self: flex-start;
-      background: var(--message-bg-response);
+      background-color: var(--message-bg-response);
       transition: all 0.5s ease;
     }
 
@@ -227,37 +259,31 @@
       align-items: center;
       gap: 4px;
     }
-
     .typing-indicator span {
-      display: block;
-      width: 8px;
-      height: 8px;
+      width: 8px; height: 8px;
       background-color: #1f96f2;
       border-radius: 50%;
       animation: blink 1.4s infinite ease-in-out;
     }
-
     @keyframes blink {
-      0%, 80%, 100% { opacity: 0.4; transform: scale(1); }
+      0%,80%,100% { opacity: 0.4; transform: scale(1); }
       40% { opacity: 1; transform: scale(1.2); }
     }
 
     .input-section {
-      background: var(--input-bg);
+      background-color: var(--input-bg);
       border-top: 1px solid var(--border-color);
       padding: 15px;
       display: flex;
       gap: 10px;
       transition: background-color 0.3s ease, border-color 0.3s ease;
     }
-
     #textInputContainer {
       width: 100%;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
     .input-section textarea {
       flex: 1;
       padding: 10px 15px;
@@ -265,7 +291,7 @@
       line-height: 20px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      background: var(--input-bg);
+      background-color: var(--input-bg);
       color: var(--text-color);
       outline: none;
       resize: none;
@@ -273,49 +299,45 @@
       overflow-y: hidden;
       box-shadow: 0 0 4px rgba(255,255,255,0.5);
     }
-
     .input-section textarea::placeholder {
       color: #a1a1aa;
     }
 
     .input-section button {
-      background: var(--button-bg);
+      background-color: var(--button-bg);
       color: white;
       font-size: 1rem;
       border: none;
       padding: 10px 20px;
       border-radius: 8px;
       cursor: pointer;
-      opacity: 1;
       transition: background 0.3s ease, opacity 0.3s ease;
     }
-
     .input-section button:hover:not(:disabled) {
-      background: #0073e6;
+      background-color: #0073e6;
     }
-
     .input-section button:disabled {
-      background: var(--border-color);
+      background-color: var(--border-color);
       cursor: not-allowed;
       opacity: 0.5;
     }
 
     .choice-input-button {
-      width: 48%;
-      height: 40px;
-      font-size: 1rem;
-      background: var(--bg-color) !important;
+      width: 48%; height: 40px;
+      background-color: var(--bg-color) !important;
       color: var(--text-color) !important;
       border: 2px solid var(--button-bg) !important;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 0 8px rgba(15,140,255,0.8) !important;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease,
+                  border-color 0.2s ease, background-color 0.2s ease;
     }
-
     .choice-input-button:hover {
       transform: scale(0.98);
-      background: var(--message-bg-user) !important;
+      background-color: var(--message-bg-user) !important;
+    }
+    .choice-input-button:active {
+      transform: scale(0.95);
     }
 
     footer {
@@ -324,9 +346,15 @@
       font-size: 0.85rem;
     }
 
-    /* Responsive tweaks */
+    /* MOBILE LAYOUT */
     @media (max-width: 768px) {
-      .main-header img { height: 40px; }
+      #beta-popup {
+        width: 95%;
+        padding: 20px;
+      }
+      .main-header img {
+        height: 40px;
+      }
       header {
         flex-direction: column;
         align-items: center;
@@ -337,7 +365,9 @@
         white-space: normal;
         text-align: center;
       }
-      .toggle-container { justify-content: center; }
+      .toggle-container {
+        justify-content: center;
+      }
       .chat-container {
         height: auto;
         max-height: 80vh;
@@ -361,6 +391,15 @@
   </style>
 </head>
 <body class="dark-mode">
+  <!-- Beta popup overlay -->
+  <div id="beta-popup-overlay">
+    <div id="beta-popup">
+      <button id="beta-popup-close">&times;</button>
+      <h2>Welcome to CHAMPS Digital Assistant!</h2>
+      <p>This service is currently under development and may not perform as expected.<br>We appreciate your patience!</p>
+    </div>
+  </div>
+
   <div class="main-header">
     <a href="https://champsinc.com">
       <img src="CHAMPS-logo.png" alt="CHAMPS Logo">
@@ -392,174 +431,195 @@
   <footer>Powered by CHAMPS Software</footer>
 
   <script>
+    // Session and state
     let sessionId = crypto.randomUUID();
     window.supportChoice = undefined;
     window.choiceMode = true;
-    const originalInputHTML = document.getElementById('textInputContainer').innerHTML;
     let isLoading = false;
     let initialHeight;
+    const originalInputHTML = document.getElementById('textInputContainer').innerHTML;
 
+    // Show beta popup
+    function showBetaPopup() {
+      document.getElementById('beta-popup-overlay').style.display = 'flex';
+    }
+    // Close beta popup with "genie" effect
+    function closeBetaPopup() {
+      const overlay = document.getElementById('beta-popup-overlay');
+      const popup = document.getElementById('beta-popup');
+      const betaTag = document.querySelector('.beta-tag');
+      const pRect = popup.getBoundingClientRect();
+      const tRect = betaTag.getBoundingClientRect();
+      const dx = (tRect.left + tRect.width/2) - (pRect.left + pRect.width/2);
+      const dy = (tRect.top + tRect.height/2) - (pRect.top + pRect.height/2);
+      popup.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
+      popup.style.opacity = '0';
+      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+      overlay.addEventListener('transitionend', () => overlay.style.display = 'none', { once: true });
+    }
+
+    // Position logo header
     function positionHeader() {
       const header = document.querySelector('.main-header');
       const assistantBox = document.querySelector('.assistant-box');
       if (!header || !assistantBox) return;
-      const assistantTop = assistantBox.getBoundingClientRect().top;
-      header.style.top = (assistantTop / 2 + 7.5) + 'px';
+      const top = assistantBox.getBoundingClientRect().top;
+      header.style.top = (top/2 + 7.5) + 'px';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const ta = document.getElementById('userInput');
-      initialHeight = ta.scrollHeight;
-      ta.style.height = initialHeight + "px";
-      ta.addEventListener('input', () => {
-        ta.style.height = "auto";
-        ta.style.height = ta.scrollHeight + "px";
-      });
-      initializeChat();
-      positionHeader();
-    });
-
-    window.addEventListener('resize', positionHeader);
-
+    // Send message
     async function sendMessage() {
-      const textArea = document.getElementById('userInput');
-      const sendBtn = document.getElementById('sendButton');
+      const ta = document.getElementById('userInput');
+      const btn = document.getElementById('sendButton');
       if (isLoading) return;
-      const userMessage = textArea.value.trim();
-      if (!userMessage) return;
+      const msg = ta.value.trim();
+      if (!msg) return;
 
       isLoading = true;
-      sendBtn.disabled = true;
+      btn.disabled = true;
 
-      const messagesDiv = document.getElementById('messages');
-      const userMsgDiv = document.createElement('div');
-      userMsgDiv.className = 'message user-message';
-      userMsgDiv.innerText = userMessage;
-      messagesDiv.appendChild(userMsgDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      const msgs = document.getElementById('messages');
+      const u = document.createElement('div');
+      u.className = 'message user-message';
+      u.innerText = msg;
+      msgs.appendChild(u);
+      msgs.scrollTop = msgs.scrollHeight;
 
-      textArea.value = "";
-      textArea.style.height = initialHeight + "px";
+      ta.value = '';
+      ta.style.height = initialHeight + 'px';
 
-      const spinnerBubble = document.createElement('div');
-      spinnerBubble.className = 'message response-message';
-      const spinnerContainer = document.createElement('div');
-      spinnerContainer.className = 'typing-indicator';
-      spinnerContainer.innerHTML = '<span></span><span></span><span></span>';
-      spinnerBubble.appendChild(spinnerContainer);
-      messagesDiv.appendChild(spinnerBubble);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      const sp = document.createElement('div');
+      sp.className = 'message response-message';
+      const dots = document.createElement('div');
+      dots.className = 'typing-indicator';
+      dots.innerHTML = '<span></span><span></span><span></span>';
+      sp.appendChild(dots);
+      msgs.appendChild(sp);
+      msgs.scrollTop = msgs.scrollHeight;
 
       try {
-        const payload = { message: userMessage, session_id: sessionId };
+        const payload = { message: msg, session_id: sessionId };
         if (window.supportChoice) payload.support_choice = window.supportChoice;
-
-        const response = await fetch('/chat', {
+        const res = await fetch('/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Content-Type':'application/json'},
           body: JSON.stringify(payload)
         });
-        const data = await response.json();
+        const data = await res.json();
 
-        messagesDiv.removeChild(spinnerBubble);
-
-        const responseBubble = document.createElement('div');
-        responseBubble.className = 'message response-message';
-        responseBubble.innerHTML = data.reply;
-        messagesDiv.appendChild(responseBubble);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      } catch (error) {
-        console.error('Error communicating with the backend:', error);
-        if (spinnerBubble.parentNode) messagesDiv.removeChild(spinnerBubble);
+        msgs.removeChild(sp);
+        const r = document.createElement('div');
+        r.className = 'message response-message';
+        r.innerHTML = data.reply;
+        msgs.appendChild(r);
+        msgs.scrollTop = msgs.scrollHeight;
+      } catch (e) {
+        console.error(e);
+        msgs.removeChild(sp);
       } finally {
         isLoading = false;
-        sendBtn.disabled = false;
+        btn.disabled = false;
       }
     }
 
+    // Theme toggle
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
       document.body.classList.toggle('dark-mode');
     }
 
+    // Choice mode
     function initializeChoiceMode() {
-      const inputSection = document.getElementById('inputSection');
-      inputSection.innerHTML = '';
-      const choiceContainer = document.createElement('div');
-      choiceContainer.classList.add('choice-mode');
-      choiceContainer.style.display = 'flex';
-      choiceContainer.style.justifyContent = 'center';
-      choiceContainer.style.width = '100%';
-      choiceContainer.style.gap = '2%';
+      const sec = document.getElementById('inputSection');
+      sec.innerHTML = '';
+      const ctr = document.createElement('div');
+      ctr.classList.add('choice-mode');
+      ctr.style.display = 'flex';
+      ctr.style.justifyContent = 'center';
+      ctr.style.width = '100%';
+      ctr.style.gap = '2%';
 
-      const mobileButton = document.createElement('button');
-      mobileButton.classList.add('choice-input-button');
-      mobileButton.innerText = 'CHAMPS Mobile App';
+      const mb = document.createElement('button');
+      mb.classList.add('choice-input-button');
+      mb.innerText = 'CHAMPS Mobile App';
+      mb.onclick = () => handleProductChoice('mobile');
 
-      const desktopButton = document.createElement('button');
-      desktopButton.classList.add('choice-input-button');
-      desktopButton.innerText = 'CHAMPS CMMS';
+      const db = document.createElement('button');
+      db.classList.add('choice-input-button');
+      db.innerText = 'CHAMPS CMMS';
+      db.onclick = () => handleProductChoice('desktop');
 
-      mobileButton.addEventListener('click', () => handleProductChoice('mobile'));
-      desktopButton.addEventListener('click', () => handleProductChoice('desktop'));
-
-      choiceContainer.append(mobileButton, desktopButton);
-      inputSection.appendChild(choiceContainer);
+      ctr.append(mb, db);
+      sec.appendChild(ctr);
     }
 
+    // Handle choice selection
     function handleProductChoice(product) {
       window.supportChoice = product;
       window.choiceMode = false;
+      const msgs = document.getElementById('messages');
+      const prm = document.getElementById('promptBubble');
+      if (prm) prm.remove();
+      const bot = document.createElement('div');
+      bot.className = 'message response-message';
+      bot.innerText = product==='mobile'
+        ? 'How can I help you with CHAMPS Mobile App?'
+        : 'How can I help you with CHAMPS CMMS?';
+      msgs.appendChild(bot);
+      msgs.scrollTop = msgs.scrollHeight;
 
-      const messagesDiv = document.getElementById('messages');
-      const promptBubble = document.getElementById('promptBubble');
-      if (promptBubble) promptBubble.remove();
-
-      const botMsg = document.createElement('div');
-      botMsg.className = 'message response-message';
-      botMsg.innerText = product === 'mobile'
-        ? "How can I help you with CHAMPS Mobile App?"
-        : "How can I help you with CHAMPS CMMS?";
-      messagesDiv.appendChild(botMsg);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-      const inputSection = document.getElementById('inputSection');
-      const choiceContainer = inputSection.querySelector('.choice-mode');
-      if (choiceContainer) {
-        choiceContainer.style.transition = 'opacity 0.5s ease';
-        choiceContainer.style.opacity = '0';
-        setTimeout(() => {
-          inputSection.innerHTML = originalInputHTML;
-          const newTA = document.getElementById('userInput');
-          initialHeight = newTA.scrollHeight;
-          newTA.style.height = initialHeight + "px";
-          newTA.addEventListener('input', () => {
-            newTA.style.height = "auto";
-            newTA.style.height = newTA.scrollHeight + "px";
-          });
-        }, 500);
+      const sec = document.getElementById('inputSection');
+      const cm = sec.querySelector('.choice-mode');
+      if (cm) {
+        cm.style.transition = 'opacity 0.5s ease';
+        cm.style.opacity = '0';
+        setTimeout(()=>{
+          sec.innerHTML = originalInputHTML;
+          const nta = document.getElementById('userInput');
+          initialHeight = nta.scrollHeight;
+          nta.style.height = initialHeight+'px';
+          nta.oninput = ()=>{nta.style.height='auto';nta.style.height=nta.scrollHeight+'px';};
+        },500);
       }
       positionHeader();
     }
 
+    // Initialize chat bubbles
     function initializeChat() {
-      const messagesDiv = document.getElementById('messages');
-      const welcomeBubble = document.createElement('div');
-      welcomeBubble.className = 'message response-message';
-      welcomeBubble.innerText = 'Welcome to CHAMPS Software!';
-      messagesDiv.appendChild(welcomeBubble);
+      const msgs = document.getElementById('messages');
+      const wb = document.createElement('div');
+      wb.className = 'message response-message';
+      wb.innerText = 'Welcome to CHAMPS Software!';
+      msgs.appendChild(wb);
 
-      const promptBubble = document.createElement('div');
-      promptBubble.className = 'message response-message';
-      promptBubble.id = "promptBubble";
-      promptBubble.innerText = 'Please choose a product below.';
-      messagesDiv.appendChild(promptBubble);
+      const prm = document.createElement('div');
+      prm.className = 'message response-message';
+      prm.id = 'promptBubble';
+      prm.innerText = 'Please choose a product below.';
+      msgs.appendChild(prm);
 
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      msgs.scrollTop = msgs.scrollHeight;
       initializeChoiceMode();
     }
 
-    window.addEventListener('beforeunload', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+      showBetaPopup();
+      document.getElementById('beta-popup-close').addEventListener('click', closeBetaPopup);
+      document.getElementById('beta-popup-overlay').addEventListener('click', e => {
+        if (e.target.id === 'beta-popup-overlay') closeBetaPopup();
+      });
+
+      const ta = document.getElementById('userInput');
+      initialHeight = ta.scrollHeight;
+      ta.style.height = initialHeight + 'px';
+      ta.oninput = ()=>{ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; };
+
+      initializeChat();
+      positionHeader();
+    });
+
+    window.addEventListener('resize', positionHeader);
+    window.addEventListener('beforeunload', ()=>{
       navigator.sendBeacon('/end_session', JSON.stringify({ session_id: sessionId }));
     });
   </script>
